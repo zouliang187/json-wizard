@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Wizard — Free Online JSON Tools</title>
+    <meta name="description" content="Free online JSON formatter, validator, converter (CSV/YAML), and minifier. All processing happens in your browser — your data never leaves your device.">
+    
+    <!-- Prism for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --success: #3fb950;
+            --error: #f85149;
+            --warning: #d2991d;
+            --button-bg: #21262d;
+            --button-hover: #30363d;
+            --radius: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-icon { font-size: 1.5rem; }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .support-btn {
+            background: linear-gradient(135deg, #ff813f, #e85d26);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        
+        .support-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(232, 93, 38, 0.3);
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            gap: 16px;
+        }
+        
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .toolbar button {
+            background: var(--button-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: var(--radius);
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+        
+        .toolbar button:hover {
+            background: var(--button-hover);
+            border-color: var(--accent);
+        }
+        
+        .toolbar button.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .toolbar button.primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .toolbar button.primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .toolbar .separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+        
+        .workspace {
+            flex: 1;
+            display: flex;
+            gap: 16px;
+            min-height: 400px;
+        }
+        
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 8px 12px;
+            background: var(--button-bg);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-body {
+            flex: 1;
+            position: relative;
+        }
+        
+        .panel-body textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            color: var(--text);
+            border: none;
+            padding: 16px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8125rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            tab-size: 2;
+        }
+        
+        .panel-body pre {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 16px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8125rem;
+            line-height: 1.6;
+            overflow: auto;
+            background: transparent !important;
+        }
+        
+        .panel-body pre code {
+            background: transparent !important;
+            font-family: inherit;
+        }
+        
+        .panel-body .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--button-bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .panel:hover .copy-btn { display: block; }
+        .panel-body .copy-btn:hover { color: var(--text); }
+        
+        .status {
+            font-size: 0.8125rem;
+            padding: 6px 0;
+            color: var(--text-muted);
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status .error { color: var(--error); }
+        .status .success { color: var(--success); }
+        .status .info { color: var(--accent); }
+        
+        footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        footer a:hover { text-decoration: underline; }
+        
+        .donation-banner {
+            background: linear-gradient(135deg, rgba(255,129,63,0.1), rgba(232,93,38,0.05));
+            border: 1px solid rgba(255,129,63,0.2);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+        
+        .donation-banner span { color: var(--text-muted); }
+        
+        @media (max-width: 768px) {
+            .workspace { flex-direction: column; }
+            main { padding: 12px; }
+            .toolbar { gap: 4px; }
+            .toolbar button { padding: 6px 10px; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="logo-icon">{ }</span>
+            JSON Wizard
+        </div>
+        <div class="header-actions">
+            <a href="https://www.buymeacoffee.com/hermesagent" target="_blank" class="support-btn">
+                ☕ Buy me a coffee
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="donation-banner">
+            <span>💡 This tool is free and open source. If it saves you time, consider supporting its development.</span>
+            <a href="https://www.buymeacoffee.com/hermesagent" target="_blank" class="support-btn">☕ $1</a>
+        </div>
+        
+        <div class="toolbar" id="toolbar">
+            <button class="active" data-action="format">✨ Format</button>
+            <button data-action="validate">✓ Validate</button>
+            <button data-action="minify">📦 Minify</button>
+            <button data-action="to-csv">📊 To CSV</button>
+            <button data-action="to-yaml">📄 To YAML</button>
+            <span class="separator"></span>
+            <button data-action="escape">🔒 Escape</button>
+            <button data-action="unescape">🔓 Unescape</button>
+            <span class="separator"></span>
+            <button data-action="sample" class="primary">🎲 Load Sample</button>
+            <button data-action="clear">🗑 Clear</button>
+        </div>
+        
+        <div class="workspace">
+            <div class="panel" id="input-panel">
+                <div class="panel-header">📥 Input JSON</div>
+                <div class="panel-body">
+                    <textarea id="input" placeholder='Paste your JSON here, or click "Load Sample" to try it out...' spellcheck="false"></textarea>
+                </div>
+            </div>
+            <div class="panel" id="output-panel">
+                <div class="panel-header">
+                    📤 Output
+                    <span id="output-label" style="font-weight:normal">Formatted</span>
+                </div>
+                <div class="panel-body">
+                    <pre><code id="output" class="language-json"></code></pre>
+                    <button class="copy-btn" onclick="copyOutput()">📋 Copy</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </main>
+    
+    <footer>
+        Built with ❤️ by <a href="https://www.buymeacoffee.com/hermesagent" target="_blank">Hermes Agent</a> — 
+        All processing happens in your browser. No data is ever sent to a server.
+    </footer>
+
+    <script>
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        const outputLabel = document.getElementById('output-label');
+        let currentMode = 'format';
+        
+        // Toolbar buttons
+        document.getElementById('toolbar').addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const action = btn.dataset.action;
+            if (!action) return;
+            
+            // Update active state
+            document.querySelectorAll('#toolbar button[data-action]').forEach(b => b.classList.remove('active'));
+            if (!['sample', 'clear', 'escape', 'unescape'].includes(action)) {
+                btn.classList.add('active');
+                currentMode = action;
+            }
+            
+            process(action);
+        });
+        
+        // Auto-process on input
+        let debounceTimer;
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                process(currentMode);
+            }, 300);
+        });
+        
+        function showStatus(msg, type) {
+            status.innerHTML = `<span class="${type}">${msg}</span>`;
+        }
+        
+        function setOutput(text, lang) {
+            output.textContent = text;
+            output.className = lang || 'language-json';
+            if (text) Prism.highlightElement(output);
+        }
+        
+        function process(action) {
+            const raw = input.value.trim();
+            
+            if (action === 'clear') {
+                input.value = '';
+                output.textContent = '';
+                showStatus('', '');
+                return;
+            }
+            
+            if (action === 'sample') {
+                const samples = [
+                    '{"name":"Alice","email":"alice@example.com","age":30,"tags":["developer","designer"],"address":{"city":"San Francisco","zip":"94105"},"active":true}',
+                    '[{"id":1,"product":"Widget","price":9.99,"inStock":true},{"id":2,"product":"Gadget","price":24.99,"inStock":false},{"id":3,"product":"Doodad","price":14.50,"inStock":true}]',
+                    '{"users":[{"name":"Bob","scores":[85,92,78]},{"name":"Carol","scores":[95,88,91]}],"metadata":{"generated":"2026-06-17","version":2}}'
+                ];
+                input.value = samples[Math.floor(Math.random() * samples.length)];
+                process(currentMode);
+                return;
+            }
+            
+            if (!raw) {
+                showStatus('Paste some JSON to get started ✨', 'info');
+                return;
+            }
+            
+            try {
+                switch (action) {
+                    case 'format':
+                        formatJSON(raw);
+                        break;
+                    case 'validate':
+                        validateJSON(raw);
+                        break;
+                    case 'minify':
+                        minifyJSON(raw);
+                        break;
+                    case 'to-csv':
+                        jsonToCSV(raw);
+                        break;
+                    case 'to-yaml':
+                        jsonToYAML(raw);
+                        break;
+                    case 'escape':
+                        escapeJSON(raw);
+                        break;
+                    case 'unescape':
+                        unescapeJSON(raw);
+                        break;
+                    default:
+                        formatJSON(raw);
+                }
+            } catch (e) {
+                setOutput(e.message, 'language-text');
+                showStatus(`❌ ${e.message}`, 'error');
+            }
+        }
+        
+        function parseJSON(raw) {
+            // Try direct parse first
+            try {
+                return JSON.parse(raw);
+            } catch (e1) {
+                // Try with trailing comma fix
+                try {
+                    return JSON.parse(raw.replace(/,\s*([}\]])/g, '$1'));
+                } catch (e2) {
+                    // Try single quotes
+                    try {
+                        return JSON.parse(raw.replace(/'/g, '"'));
+                    } catch (e3) {
+                        throw new Error('Invalid JSON: ' + e1.message);
+                    }
+                }
+            }
+        }
+        
+        function formatJSON(raw) {
+            const obj = parseJSON(raw);
+            const formatted = JSON.stringify(obj, null, 2);
+            setOutput(formatted);
+            const lines = formatted.split('\n').length;
+            const chars = formatted.length;
+            showStatus(`✅ Valid JSON · ${lines} lines · ${chars.toLocaleString()} chars`, 'success');
+            outputLabel.textContent = 'Formatted';
+        }
+        
+        function validateJSON(raw) {
+            const obj = parseJSON(raw);
+            const type = Array.isArray(obj) ? 'Array' : typeof obj === 'object' ? 'Object' : typeof obj;
+            const keys = typeof obj === 'object' && obj !== null && !Array.isArray(obj) 
+                ? Object.keys(obj).length : (Array.isArray(obj) ? obj.length : 0);
+            
+            const formatted = JSON.stringify(obj, null, 2);
+            setOutput(formatted);
+            
+            let info = `✅ Valid JSON (${type})`;
+            if (type === 'Object') info += ` · ${keys} keys`;
+            if (type === 'Array') info += ` · ${keys} items`;
+            showStatus(info, 'success');
+            outputLabel.textContent = 'Validated';
+        }
+        
+        function minifyJSON(raw) {
+            const obj = parseJSON(raw);
+            const minified = JSON.stringify(obj);
+            const original = raw.length;
+            const savings = ((1 - minified.length / original) * 100).toFixed(1);
+            setOutput(minified);
+            showStatus(`📦 Minified · ${minified.length.toLocaleString()} chars · ${savings}% smaller`, 'success');
+            outputLabel.textContent = 'Minified';
+        }
+        
+        function jsonToCSV(raw) {
+            const data = parseJSON(raw);
+            const arr = Array.isArray(data) ? data : [data];
+            
+            if (arr.length === 0) throw new Error('No data to convert');
+            if (typeof arr[0] !== 'object' || arr[0] === null) throw new Error('JSON must be an array of objects');
+            
+            const headers = [...new Set(arr.flatMap(obj => Object.keys(obj)))];
+            
+            const csvRows = [headers.join(',')];
+            for (const obj of arr) {
+                const row = headers.map(h => {
+                    const val = obj[h] ?? '';
+                    const str = String(val);
+                    return str.includes(',') || str.includes('"') || str.includes('\n')
+                        ? `"${str.replace(/"/g, '""')}"` : str;
+                });
+                csvRows.push(row.join(','));
+            }
+            
+            const csv = csvRows.join('\n');
+            setOutput(csv, 'language-text');
+            showStatus(`📊 Converted · ${arr.length} rows · ${headers.length} columns`, 'success');
+            outputLabel.textContent = 'CSV';
+            
+            // Auto-download
+            downloadFile(csv, 'output.csv', 'text/csv');
+        }
+        
+        function jsonToYAML(raw) {
+            const obj = parseJSON(raw);
+            const yaml = toYAML(obj);
+            setOutput(yaml, 'language-yaml');
+            showStatus(`📄 Converted to YAML`, 'success');
+            outputLabel.textContent = 'YAML';
+        }
+        
+        function toYAML(obj, indent = 0) {
+            const pad = '  '.repeat(indent);
+            if (obj === null) return 'null';
+            if (typeof obj === 'boolean') return String(obj);
+            if (typeof obj === 'number') return String(obj);
+            if (typeof obj === 'string') {
+                if (obj.includes(':') || obj.includes('#') || obj.includes('{') || obj.includes('[') || 
+                    obj.includes('&') || obj.includes('*') || obj.includes('!') || obj.includes('|') ||
+                    obj.includes('>') || obj.includes('%') || obj.includes('@') || obj.includes('`')) {
+                    return `"${obj.replace(/"/g, '\\"')}"`;
+                }
+                if (obj === '' || obj.includes('\n')) return `"${obj.replace(/"/g, '\\"')}"`;
+                return obj;
+            }
+            
+            if (Array.isArray(obj)) {
+                if (obj.length === 0) return '[]';
+                return obj.map(item => `${pad}- ${toYAML(item, indent + 1).replace(/^  /, '')}`).join('\n');
+            }
+            
+            if (typeof obj === 'object') {
+                const keys = Object.keys(obj);
+                if (keys.length === 0) return '{}';
+                return keys.map(k => {
+                    const val = toYAML(obj[k], indent + 1);
+                    if (typeof obj[k] === 'object' && obj[k] !== null && Object.keys(obj[k]).length > 0) {
+                        return `${pad}${k}:\n${val}`;
+                    }
+                    return `${pad}${k}: ${val}`;
+                }).join('\n');
+            }
+            
+            return String(obj);
+        }
+        
+        function escapeJSON(raw) {
+            const escaped = raw
+                .replace(/\\/g, '\\\\')
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, '\\n')
+                .replace(/\r/g, '\\r')
+                .replace(/\t/g, '\\t');
+            setOutput(`"${escaped}"`, 'language-text');
+            showStatus('🔒 Escaped JSON string', 'success');
+            outputLabel.textContent = 'Escaped';
+        }
+        
+        function unescapeJSON(raw) {
+            const stripped = raw.replace(/^"|"$/g, '');
+            const unescaped = stripped
+                .replace(/\\"/g, '"')
+                .replace(/\\n/g, '\n')
+                .replace(/\\r/g, '\r')
+                .replace(/\\t/g, '\t')
+                .replace(/\\\\/g, '\\');
+            setOutput(unescaped, 'language-text');
+            showStatus('🔓 Unescaped JSON string', 'success');
+            outputLabel.textContent = 'Unescaped';
+        }
+        
+        function copyOutput() {
+            const text = output.textContent;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showStatus('📋 Copied to clipboard!', 'success');
+                setTimeout(() => process(currentMode), 2000);
+            });
+        }
+        
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                process(currentMode);
+            }
+        });
+        
+        // Load initial sample
+        input.value = '{"name":"Alice","email":"alice@example.com","age":30,"tags":["developer","designer"],"address":{"city":"San Francisco","zip":"94105"},"active":true}';
+        process('format');
+    </script>
+</body>
+</html>
