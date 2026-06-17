@@ -290,16 +290,25 @@
             JSON Wizard
         </div>
         <div class="header-actions">
-            <a href="https://www.buymeacoffee.com/hermesagent" target="_blank" class="support-btn">
-                ☕ Buy me a coffee
+            <a href="#donate" class="support-btn" onclick="document.getElementById('donate-section').scrollIntoView({behavior:'smooth'});return false">
+                ☕ Support this tool
             </a>
         </div>
     </header>
     
     <main>
-        <div class="donation-banner">
-            <span>💡 This tool is free and open source. If it saves you time, consider supporting its development.</span>
-            <a href="https://www.buymeacoffee.com/hermesagent" target="_blank" class="support-btn">☕ $1</a>
+        <div id="donate-section" style="background: linear-gradient(135deg, rgba(63,185,80,0.1), rgba(88,166,255,0.05)); border: 1px solid rgba(63,185,80,0.2); border-radius: var(--radius); padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <strong style="color: var(--success);">💡 Support JSON Wizard</strong>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin: 4px 0 0;">This independent tool is built and maintained by one developer. If it saves you time, consider sending a small tip — every satoshi helps keep the lights on.</p>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; font-family: monospace; font-size: 0.75rem; word-break: break-all; max-width: 450px;">
+                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 4px;">₿ LTC Wallet</div>
+                    <code style="color: var(--text); background: none;">ltc1qzhju83teussku8kmkz0am5snrhamstqj2z0gm5</code>
+                    <button onclick="navigator.clipboard.writeText('ltc1qzhju83teussku8kmkz0am5snrhamstqj2z0gm5');this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy',2000)" style="display:block;margin-top:8px;background:var(--button-bg);color:var(--text);border:1px solid var(--border);padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer;">📋 Copy</button>
+                </div>
+            </div>
         </div>
         
         <div class="toolbar" id="toolbar">
