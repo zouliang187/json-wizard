@@ -5,9 +5,11 @@ on:
 jobs:
   proxy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
-      - name: Setup tmate session (SSH proxy)
+      - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         with:
           limit-access-to-actor: true
+      - name: Print SSH info (fallback)
+        run: echo "Tmate session ended"
