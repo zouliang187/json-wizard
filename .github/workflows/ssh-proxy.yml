@@ -1,0 +1,13 @@
+name: SSH Proxy Tunnel
+on:
+  workflow_dispatch:
+
+jobs:
+  proxy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Setup tmate session (SSH proxy)
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
