@@ -1,0 +1,25 @@
+name: Download WARP
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download WARP for macOS
+        run: |
+          # Try multiple download sources
+          curl -L -o cloudflare_warp.pkg \
+            "https://github.com/cloudflare/cloudflare-warp/releases/latest/download/Cloudflare_WARP.pkg" \
+            --connect-timeout 30 --max-time 120 -v 2>&1 || \
+          curl -L -o cloudflare_warp.pkg \
+            "https://1111-releases.cloudflareclient.com/mac/Cloudflare_WARP.pkg" \
+            --connect-timeout 30 --max-time 120 -v 2>&1
+          ls -lh cloudflare_warp.pkg
+
+      - name: Upload WARP as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-warp
+          path: cloudflare_warp.pkg
+          retention-days: 1
