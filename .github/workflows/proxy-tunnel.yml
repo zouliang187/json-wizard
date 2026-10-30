@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 180
     steps:
       - name: Setup SSH server and serveo reverse tunnel
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -x
           sudo apt-get update -qq >/dev/null 2>&1
