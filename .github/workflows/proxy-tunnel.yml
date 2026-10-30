@@ -1,0 +1,30 @@
+name: SOCKS5 Proxy Tunnel
+on:
+  workflow_dispatch:
+
+jobs:
+  proxy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Setup SSH server and serveo reverse tunnel
+        run: |
+          set -x
+          sudo apt-get update -qq >/dev/null 2>&1
+          sudo apt-get install -y -qq openssh-server >/dev/null 2>&1
+          echo 'runner:Zx9Kq2Lm7Pw' | sudo chpasswd
+          sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+          sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          sudo mkdir -p /run/sshd
+          sudo /usr/sbin/sshd
+          echo "SSH_SERVER_READY"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+              -R 0:localhost:22 serveo.net 2>&1 | while read -r line; do
+            echo "SERVEO: $line"
+            if echo "$line" | grep -q "Allocated port"; then
+              PORT=$(echo "$line" | grep -oP 'port \K[0-9]+')
+              echo "SERVEO_PORT=$PORT"
+              echo "CONNECT_CMD=ssh -p $PORT runner@serveo.net -D 1080"
+            fi
+          done
