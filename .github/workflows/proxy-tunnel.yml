@@ -2,6 +2,10 @@ name: SOCKS5 Proxy Tunnel
 on:
   workflow_dispatch:
 
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   proxy:
     runs-on: ubuntu-latest
@@ -26,10 +30,10 @@ jobs:
               PORT=$(echo "$line" | grep -oP 'port \K[0-9]+')
               echo "SERVEO_PORT=$PORT"
               curl -s -X POST \
-                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Authorization: token $GITHUB_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/1/comments" \
-                -d "{\"body\":\"serveo port: $PORT\"}"
-              echo "PORT_WRITTEN_TO_ISSUE=$PORT"
+                -d "{\"body\":\"port=$PORT host=serveousercontent.com\"}"
+              echo "PORT_WRITE_DONE"
             fi
           done
