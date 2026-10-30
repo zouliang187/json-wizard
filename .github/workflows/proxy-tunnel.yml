@@ -29,11 +29,7 @@ jobs:
             if echo "$line" | grep -q "Allocated port"; then
               PORT=$(echo "$line" | grep -oP 'port \K[0-9]+')
               echo "SERVEO_PORT=$PORT"
-              curl -s -X POST \
-                -H "Authorization: token $GITHUB_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/1/comments" \
-                -d "{\"body\":\"port=$PORT host=serveousercontent.com\"}"
+              gh issue comment 1 --repo "$GITHUB_REPOSITORY" --body "port=$PORT host=serveousercontent.com"
               echo "PORT_WRITE_DONE"
             fi
           done
