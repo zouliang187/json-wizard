@@ -1,0 +1,46 @@
+name: Check Gmail
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Gmail for Vultr reply
+        env:
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYEOF'
+          import imaplib, email, subprocess, os
+          from email.header import decode_header
+          def dec(s):
+              out=''
+              for t,enc in decode_header(s):
+                  out += t.decode(enc or 'utf-8','replace') if isinstance(t,bytes) else t
+              return out
+          m = imaplib.IMAP4_SSL('imap.gmail.com', 993, timeout=40)
+          m.login('zouliang187@gmail.com', os.environ['GMAIL_APP_PW'])
+          m.select('INBOX')
+          typ, data = m.search(None, 'SUBJECT "EUS-24PAG"')
+          ids = data[0].split()
+          result = f'CHECK: EUS-24PAG emails = {len(ids)}'
+          for i in ids[-3:]:
+              typ,d = m.fetch(i,'(RFC822)')
+              msg = email.message_from_bytes(d[0][1])
+              result += f'\n--- {msg["Date"]} | {dec(msg["Subject"])}'
+              if msg.is_multipart():
+                  for part in msg.walk():
+                      if part.get_content_type()=='text/plain':
+                          b=part.get_payload(decode=True)
+                          if b: result += '\n' + b.decode('utf-8','replace')[:800]
+              else:
+                  b=msg.get_payload(decode=True)
+                  if b: result += '\n' + b.decode('utf-8','replace')[:800]
+          m.logout()
+          print(result)
+          subprocess.run(['gh','issue','comment','1','--repo','zouliang187/json-wizard','--body',result])
+          PYEOF
