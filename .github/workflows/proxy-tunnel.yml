@@ -24,14 +24,17 @@ jobs:
           sudo mkdir -p /run/sshd
           sudo /usr/sbin/sshd
           echo "SSH_SERVER_READY"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
-              -R 0:localhost:22 serveo.net 2>&1 | while read -r line; do
-            echo "SERVEO: $line"
-            if echo "$line" | grep -q "Allocated port"; then
-              PORT=$(echo "$line" | grep -oP 'port \K[0-9]+')
-              echo "SERVEO_PORT=$PORT"
-              gh issue comment 1 --repo "$GITHUB_REPOSITORY" --body "port=$PORT host=serveousercontent.com"
-              echo "PORT_WRITE_DONE"
-            fi
+          while true; do
+            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+                -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+                -R 0:localhost:22 serveo.net 2>&1 | while read -r line; do
+              echo "SERVEO: $line"
+              if echo "$line" | grep -q "Allocated port"; then
+                PORT=$(echo "$line" | grep -oP 'port \K[0-9]+')
+                echo "SERVEO_PORT=$PORT"
+                gh issue comment 1 --repo "$GITHUB_REPOSITORY" --body "port=$PORT host=serveousercontent.com"
+                echo "PORT_WRITE_DONE"
+              fi
+            done
+            sleep 3
           done
